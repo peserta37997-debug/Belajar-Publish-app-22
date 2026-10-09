@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jelajah Kuliner Malang Raya - Media Pembelajaran IPAS Kelas 4 SD</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for quiz rewards -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts: Fredoka & Plus Jakarta Sans for playful kid-friendly aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        malangRed: '#E63946',
+                        malangOrange: '#FF70A6',
+                        malangYellow: '#FFD166',
+                        malangGreen: '#06D6A0',
+                        malangBlue: '#118AB2',
+                        malangDarkBlue: '#073B4C',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F4F9FF;
+            color: #1E293B;
+        }
+
+        .font-heading {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Perspective for 3D card flip */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB703;
+            border-radius: 10px;
+        }
+
+        .pulse-subtle {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-300 selection:text-amber-900">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-amber-300 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-3">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white text-2xl shadow-md border-2 border-white transform -rotate-3 hover:rotate-0 transition-transform">
+                    🍜
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-xl sm:text-2xl text-slate-800 tracking-wide flex items-center gap-2">
+                        Jelajah Kuliner <span class="text-orange-500">Malang</span>
+                    </h1>
+                    <p class="text-xs font-semibold text-slate-500">IPAS Kelas 4 SD • Kebudayaan Lokal</p>
+                </div>
+            </div>
+
+            <!-- User Star Badge & Audio Toggle -->
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-100 border-2 border-amber-300 rounded-full px-4 py-1.5 flex items-center gap-2 shadow-inner">
+                    <span class="text-xl">⭐</span>
+                    <span id="star-count" class="font-heading font-bold text-amber-800 text-lg">0</span>
+                    <span class="text-xs text-amber-700 font-bold uppercase tracking-wider hidden sm:inline">Poin Konsep</span>
+                </div>
+
+                <button id="audio-toggle-btn" onclick="toggleMute()" title="Atur Suara Efek" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 rounded-full flex items-center justify-center text-slate-700 text-base transition-colors">
+                    <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-amber-500 text-white px-2 overflow-x-auto scrollbar-none shadow-inner">
+            <div class="max-w-7xl mx-auto flex justify-start sm:justify-center space-x-2 sm:space-x-4 py-2 min-w-max">
+                <button onclick="switchTab('home')" id="tab-btn-home" class="nav-tab active-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all bg-white text-amber-800 shadow">
+                    <i class="fa-solid fa-house"></i> Beranda
+                </button>
+                <button onclick="switchTab('peta')" id="tab-btn-peta" class="nav-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all hover:bg-amber-600">
+                    <i class="fa-solid fa-map-location-dot"></i> Peta Kuliner
+                </button>
+                <button onclick="switchTab('kartu')" id="tab-btn-kartu" class="nav-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all hover:bg-amber-600">
+                    <i class="fa-solid fa-cards"></i> Kartu Kuliner (KuMa)
+                </button>
+                <button onclick="switchTab('game')" id="tab-btn-game" class="nav-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all hover:bg-amber-600">
+                    <i class="fa-solid fa-mortar-pestle"></i> Eksplorasi Konsep
+                </button>
+                <button onclick="switchTab('lkpd')" id="tab-btn-lkpd" class="nav-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all hover:bg-amber-600">
+                    <i class="fa-solid fa-clipboard-list"></i> LKPD Digital
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- TAB 1: BERANDA / HOME -->
+        <section id="tab-home" class="tab-content block space-y-8">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-br from-amber-400 via-orange-400 to-red-400 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-20 text-[180px] pointer-events-none select-none">🍲</div>
+                
+                <div class="max-w-2xl relative z-10 space-y-4">
+                    <span class="bg-white/20 backdrop-blur-md text-white font-bold text-xs uppercase px-3 py-1 rounded-full border border-white/30 tracking-wider">
+                        🎓 Modul Pemahaman Konsep IPAS • Fase B Kelas IV
+                    </span>
+                    <h2 class="font-heading text-3xl sm:text-5xl font-extrabold leading-tight">
+                        Selamat Datang, Detektif Kuliner Malang! 🕵️‍♂️✨
+                    </h2>
+                    <p class="text-amber-50 text-base sm:text-lg leading-relaxed">
+                        Mari pelajari konsep dasar, bahan alami, dan keunikan cita rasa makanan khas Malang Raya melalui peta interaktif, kartu eksplorasi, dan laboratorium dapur racik!
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('peta')" class="bg-white text-orange-600 hover:bg-orange-50 font-heading font-bold px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2">
+                            <i class="fa-solid fa-compass"></i> Peta Kuliner
+                        </button>
+                        <button onclick="switchTab('game')" class="bg-amber-600 hover:bg-amber-700 text-white font-heading font-bold px-6 py-3 rounded-2xl shadow-md transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-mortar-pestle"></i> Eksplorasi Konsep
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capaian & Tujuan Pembelajaran Quick Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mb-4 font-bold">
+                        🎯
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-800 mb-2">Tujuan Pembelajaran</h3>
+                    <ul class="text-sm text-slate-600 space-y-2 list-disc list-inside">
+                        <li>Mengenal minimal 5 makanan/minuman khas Malang.</li>
+                        <li>Memahami bahan utama & keunikan cita rasa.</li>
+                        <li>Menceritakan nilai budaya lokal dengan percaya diri.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl mb-4 font-bold">
+                        🗺️
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-800 mb-2">Wilayah Malang</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-2">
+                        Malang kaya akan sejarah, tradisi & hidangan lezat berkuah hangat di wilayahnya:
+                    </p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-lg">🏙️ Kota Malang</span>
+                        <span class="bg-orange-50 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-lg">⛰️ Kabupaten Malang</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl mb-4 font-bold">
+                        💡
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-800 mb-2">Petunjuk Guru & Orang Tua</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Gunakan media ini secara interaktif! Ajak siswa memutar suara narasi, mencoba permainan racik bahan, dan mengisi LKPD Digital di akhir sesi belajar.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PETA KULINER INTERAKTIF -->
+        <section id="tab-peta" class="tab-content hidden space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Eksplorasi Wilayah</span>
+                <h2 class="font-heading text-3xl font-bold text-slate-800">Peta Kuliner Khas Malang</h2>
+                <p class="text-slate-600 text-sm">Klik pin makanan di peta untuk mengeksplorasi keunikan hidangan khas daerah Malang!</p>
+            </div>
+
+            <!-- Map Interactive Board -->
+            <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-md">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- SVG Visual Map Area with enhanced vector art graphics -->
+                    <div class="lg:col-span-2 bg-gradient-to-b from-sky-100 via-emerald-50 to-amber-50 rounded-2xl p-4 border-2 border-sky-200 relative min-h-[420px] flex items-center justify-center overflow-hidden shadow-inner">
+                        
+                        <!-- Map SVG Graphics (Detailed Malang Map Vector Illustration) -->
+                        <svg class="w-full h-full min-h-[380px]" viewBox="0 0 700 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="kabGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#D8F3DC" />
+                                    <stop offset="100%" stop-color="#B7E4C7" />
+                                </linearGradient>
+                                <linearGradient id="kotaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFE5D9" />
+                                    <stop offset="100%" stop-color="#FFCAD4" />
+                                </linearGradient>
+                                <linearGradient id="mountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#74C69D" />
+                                    <stop offset="100%" stop-color="#40916C" />
+                                </linearGradient>
+                                <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.12" />
+                                </filter>
+                            </defs>
+
+                            <!-- Background Terrain & Mountains (Gn. Arjuno, Kawi, Semeru silhouettes) -->
+                            <!-- Mountain North (Arjuno) -->
+                            <polygon points="120,110 180,40 240,110" fill="url(#mountainGrad)" opacity="0.75" />
+                            <polygon points="180,40 200,65 160,65" fill="#FFFFFF" opacity="0.8" />
+                            <text x="180" y="32" fill="#2D6A4F" font-weight="bold" font-size="11" text-anchor="middle" font-family="Fredoka">⛰️ Gn. Arjuno</text>
+
+                            <!-- Mountain East (Semeru) -->
+                            <polygon points="510,180 580,80 650,180" fill="url(#mountainGrad)" opacity="0.65" />
+                            <polygon points="580,80 600,110 560,110" fill="#FFFFFF" opacity="0.8" />
+                            <text x="580" y="72" fill="#2D6A4F" font-weight="bold" font-size="11" text-anchor="middle" font-family="Fredoka">🌋 Gn. Semeru</text>
+
+                            <!-- Mountain West (Kawi) -->
+                            <polygon points="40,260 100,170 160,260" fill="url(#mountainGrad)" opacity="0.7" />
+                            <text x="100" y="162" fill="#2D6A4F" font-weight="bold" font-size="11" text-anchor="middle" font-family="Fredoka">⛰️ Gn. Kawi</text>
+
+                            <!-- KABUPATEN MALANG (Outer Region Path) -->
+                            <path d="M 120 120 
+                                     Q 280 70 480 110 
+                                     Q 620 180 590 350 
+                                     Q 520 460 320 450 
+                                     Q 120 440 80 320 
+                                     Q 60 200 120 120 Z" 
+                                  fill="url(#kabGrad)" stroke="#52B788" stroke-width="4" stroke-dasharray="8 6" filter="url(#softShadow)"/>
+                            
+                            <!-- Brantas River Path -->
+                            <path d="M 210 100 Q 280 200 310 280 T 420 440" stroke="#74C69D" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+                            <path d="M 210 100 Q 280 200 310 280 T 420 440" stroke="#64DFDF" stroke-width="3" stroke-linecap="round" fill="none"/>
+                            <text x="240" y="150" fill="#0077B6" font-size="10" font-weight="bold" font-family="Plus Jakarta Sans" transform="rotate(35 240 150)">🌊 Sungai Brantas</text>
+
+                            <!-- KOTA MALANG (Central City Region Path) -->
+                            <path d="M 270 210 
+                                     C 370 190, 440 230, 430 320 
+                                     C 380 370, 290 360, 260 300 
+                                     C 240 250, 250 220, 270 210 Z" 
+                                  fill="url(#kotaGrad)" stroke="#F4A261" stroke-width="3.5" filter="url(#softShadow)"/>
+                            
+                            <!-- Decorative Trees & Landmarks -->
+                            <text x="340" y="340" fill="#D90429" font-weight="bold" font-size="12" font-family="Fredoka" text-anchor="middle">🏙️ KOTA MALANG</text>
+                            <text x="220" y="410" fill="#1B4332" font-weight="bold" font-size="14" font-family="Fredoka">⛰️ KABUPATEN MALANG</text>
+                            
+                            <text x="140" y="290" font-size="16">🌲</text>
+                            <text x="170" y="330" font-size="16">🌲</text>
+                            <text x="480" y="260" font-size="16">🌲</text>
+                            <text x="450" y="380" font-size="16">🌲</text>
+
+                            <!-- Compass Rose (Arah Mata Angin) -->
+                            <g transform="translate(620, 410)">
+                                <circle cx="0" cy="0" r="22" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+                                <text x="0" y="-8" font-size="10" font-weight="extrabold" fill="#E63946" text-anchor="middle" font-family="Fredoka">U</text>
+                                <text x="0" y="14" font-size="9" font-weight="bold" fill="#64748B" text-anchor="middle">S</text>
+                                <text x="-12" y="3" font-size="9" font-weight="bold" fill="#64748B" text-anchor="middle">B</text>
+                                <text x="12" y="3" font-size="9" font-weight="bold" fill="#64748B" text-anchor="middle">T</text>
+                                <polygon points="0,-6 4,0 0,6 -4,0" fill="#E63946"/>
+                            </g>
+                        </svg>
+
+                        <!-- CLICKABLE FOOD PINS ON MAP -->
+                        <!-- Bakso Malang (Kota Malang Center) -->
+                        <button onclick="showMapDetail('bakso')" class="absolute top-[48%] left-[48%] -translate-x-1/2 -translate-y-1/2 group z-10">
+                            <span class="flex h-11 w-11 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-11 w-11 bg-red-500 text-white items-center justify-center text-2xl shadow-xl border-2 border-white group-hover:scale-125 transition-transform">🥣</span>
+                            </span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Bakso Malang</span>
+                        </button>
+
+                        <!-- Rawon Malang (Kota Malang North) -->
+                        <button onclick="showMapDetail('rawon')" class="absolute top-[38%] left-[55%] group z-10">
+                            <span class="relative inline-flex rounded-full h-11 w-11 bg-slate-800 text-white items-center justify-center text-2xl shadow-xl border-2 border-amber-400 group-hover:scale-125 transition-transform">🍲</span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Rawon</span>
+                        </button>
+
+                        <!-- Orem-Orem (Kota Malang South) -->
+                        <button onclick="showMapDetail('orem')" class="absolute top-[62%] left-[44%] group z-10">
+                            <span class="relative inline-flex rounded-full h-11 w-11 bg-amber-500 text-white items-center justify-center text-2xl shadow-xl border-2 border-white group-hover:scale-125 transition-transform">🍛</span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Orem-Orem</span>
+                        </button>
+
+                        <!-- Keripik Tempe Sanan (Kota Malang East) -->
+                        <button onclick="showMapDetail('sanan')" class="absolute top-[42%] left-[36%] group z-10">
+                            <span class="relative inline-flex rounded-full h-11 w-11 bg-orange-500 text-white items-center justify-center text-2xl shadow-xl border-2 border-white group-hover:scale-125 transition-transform">🍘</span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Sanan</span>
+                        </button>
+
+                        <!-- Mendol Malang (Kabupaten Malang West / Kepanjen area) -->
+                        <button onclick="showMapDetail('mendol')" class="absolute top-[68%] left-[26%] group z-10">
+                            <span class="flex h-11 w-11 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-11 w-11 bg-amber-800 text-white items-center justify-center text-2xl shadow-xl border-2 border-amber-300 group-hover:scale-125 transition-transform">🧆</span>
+                            </span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Mendol</span>
+                        </button>
+
+                        <!-- Wedang Angsle (Kota Malang Central) -->
+                        <button onclick="showMapDetail('angsle')" class="absolute top-[54%] left-[60%] group z-10">
+                            <span class="relative inline-flex rounded-full h-11 w-11 bg-purple-600 text-white items-center justify-center text-2xl shadow-xl border-2 border-white group-hover:scale-125 transition-transform">🍵</span>
+                            <span class="bg-white/95 backdrop-blur-sm text-slate-800 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md border border-slate-200 mt-1 block">Wedang Angsle</span>
+                        </button>
+                    </div>
+
+                    <!-- Side Info Box -->
+                    <div id="map-info-panel" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
+                        <div>
+                            <span id="info-region-badge" class="bg-orange-100 text-orange-700 font-bold text-xs px-3 py-1 rounded-full">
+                                Pilih Makanan di Peta!
+                            </span>
+                            <h3 id="info-title" class="font-heading text-2xl font-bold text-slate-800 mt-3">
+                                Sentuh Ikon Peta 📍
+                            </h3>
+                            <p id="info-desc" class="text-slate-600 text-sm leading-relaxed mt-2">
+                                Klik salah satu ikon makanan berwarna di atas peta untuk mengetahui asal usul, keunikan, dan bahan utamanya.
+                            </p>
+                        </div>
+
+                        <div id="info-details" class="hidden space-y-3 bg-white p-4 rounded-xl border border-slate-200 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-500">Bahan Kunci:</span>
+                                <span id="info-ingredient" class="font-semibold text-slate-800"></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-500">Rasa Utama:</span>
+                                <span id="info-taste" class="font-semibold text-slate-800"></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-500">Fakta Unik:</span>
+                                <span id="info-fact" class="font-semibold text-amber-700"></span>
+                            </div>
+                        </div>
+
+                        <button id="info-speech-btn" onclick="speakCurrentInfo()" class="hidden w-full bg-amber-500 hover:bg-amber-600 text-white font-heading font-bold py-2.5 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> Dengarkan Penjelasan
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: KARTU KULINER (KUMA FLASHCARDS) -->
+        <section id="tab-kartu" class="tab-content hidden space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Kartu Belajar "KuMa"</span>
+                <h2 class="font-heading text-3xl font-bold text-slate-800">Kartu Kilas Kuliner Malang</h2>
+                <p class="text-slate-600 text-sm">Klik kartu untuk membalik dan membaca fakta konsep penting di balik hidangan!</p>
+            </div>
+
+            <!-- Grid of Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="flashcards-container">
+                <!-- Javascript will insert cards dynamically -->
+            </div>
+        </section>
+
+        <!-- TAB 4: AKTIVITAS EKSPLORASI KONSEP -->
+        <section id="tab-game" class="tab-content hidden space-y-8">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Aktivitas Pemahaman Konsep</span>
+                <h2 class="font-heading text-3xl font-bold text-slate-800">Laboratorium Konsep Kuliner</h2>
+                <p class="text-slate-600 text-sm">Pilih aktivitas di bawah ini untuk mendalami bahan alami, bumbu khas, dan pengelompokan makanan Malang Raya!</p>
+            </div>
+
+            <!-- Concept Activity Selection Buttons -->
+            <div class="flex justify-center gap-4 flex-wrap">
+                <button onclick="switchSubGame('racik')" id="btn-subgame-racik" class="px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-orange-500 text-white shadow-md flex items-center gap-2">
+                    🧪 Aktivitas 1: Dapur Racik Bahan & Bumbu
+                </button>
+                <button onclick="switchSubGame('kelompok')" id="btn-subgame-kelompok" class="px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 flex items-center gap-2">
+                    📁 Aktivitas 2: Kelompokkan Ciri & Rasa
+                </button>
+            </div>
+
+            <!-- CONCEPT ACTIVITY 1: RACIK BAHAN & BUMBU -->
+            <div id="subgame-racik" class="space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-slate-200 shadow-md max-w-3xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Pilih Masakan</span>
+                        <h3 class="font-heading text-2xl font-bold text-slate-800 mt-2">Racik Makanan Khas Malang!</h3>
+                        <p class="text-slate-500 text-sm">Pilih menu di bawah, lalu klik bahan-bahan bumbu khasnya untuk meracik hidangan!</p>
+                    </div>
+
+                    <!-- Dish Selector Buttons -->
+                    <div class="flex justify-center flex-wrap gap-2" id="recipe-dish-buttons">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <!-- Cooking Canvas Area -->
+                    <div class="bg-amber-50/60 p-6 rounded-2xl border-2 border-amber-200 flex flex-col md:flex-row gap-6 items-center">
+                        <div class="text-center md:w-1/3 space-y-2">
+                            <div id="pot-icon" class="text-7xl animate-pulse">🍲</div>
+                            <h4 id="pot-dish-name" class="font-heading font-bold text-lg text-amber-900">Rawon Malang</h4>
+                            <p class="text-xs text-slate-500">Pilih 3 bahan utama yang tepat dari rak bumbu di samping!</p>
+                        </div>
+
+                        <!-- Available Ingredients Shelf -->
+                        <div class="md:w-2/3 w-full space-y-3">
+                            <label class="block font-heading font-bold text-xs uppercase text-slate-500 tracking-wider">Rak Bahan & Rempah:</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="ingredient-shelf">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Concept Result Explanation Box -->
+                    <div id="recipe-concept-feedback" class="hidden p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-slate-800 space-y-2">
+                        <div class="flex items-center gap-2 font-heading font-bold text-emerald-800 text-base">
+                            <span>✨ Konsep Utama Terbukti!</span>
+                        </div>
+                        <p id="recipe-concept-text" class="text-sm leading-relaxed text-slate-700"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONCEPT ACTIVITY 2: KELOMPOKKAN CIRI & RASA -->
+            <div id="subgame-kelompok" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-slate-200 shadow-md space-y-6">
+                    <div class="text-center">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Pengelompokan Konsep</span>
+                        <h3 class="font-heading text-2xl font-bold text-slate-800 mt-2">Kelompokkan Kuliner Menurut Karakteristiknya</h3>
+                        <p class="text-slate-500 text-sm">Klik kartu makanan di bawah, lalu tempatkan ke kategori yang tepat!</p>
+                    </div>
+
+                    <!-- Food Pool -->
+                    <div class="space-y-2">
+                        <p class="font-heading font-bold text-xs text-slate-500 uppercase tracking-wider text-center">Pilih Makanan untuk Dikelompokkan:</p>
+                        <div class="flex flex-wrap justify-center gap-3" id="classify-food-pool">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Target Categories -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                        <div id="cat-kuah" onclick="dropToCategory('kuah')" class="bg-red-50/70 border-2 border-dashed border-red-300 p-4 rounded-2xl min-h-[180px] flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-heading font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    🥣 Hidangan Berkuah Gurih & Hangat
+                                </h4>
+                                <p class="text-[11px] text-slate-500 mt-1">Cocok dinikmati saat cuaca dingin Malang.</p>
+                            </div>
+                            <div class="space-y-1.5 mt-3" id="drop-zone-kuah"></div>
+                        </div>
+
+                        <div id="cat-tempe" onclick="dropToCategory('tempe')" class="bg-amber-50/70 border-2 border-dashed border-amber-300 p-4 rounded-2xl min-h-[180px] flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-heading font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    🧆 Olahan Tempe Kedelai & Rempah
+                                </h4>
+                                <p class="text-[11px] text-slate-500 mt-1">Warisan kreativitas pengolahan kedelai lokal.</p>
+                            </div>
+                            <div class="space-y-1.5 mt-3" id="drop-zone-tempe"></div>
+                        </div>
+
+                        <div id="cat-minuman" onclick="dropToCategory('minuman')" class="bg-emerald-50/70 border-2 border-dashed border-emerald-300 p-4 rounded-2xl min-h-[180px] flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-heading font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    🍵 Minuman Hangat & Olahan Buah
+                                </h4>
+                                <p class="text-[11px] text-slate-500 mt-1">Sajian manis penawar dingin & hasil kebun.</p>
+                            </div>
+                            <div class="space-y-1.5 mt-3" id="drop-zone-minuman"></div>
+                        </div>
+                    </div>
+
+                    <!-- Reset & Summary -->
+                    <div class="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <span id="classify-status" class="font-heading font-bold text-slate-700 text-xs sm:text-sm">Klik makanan lalu klik kotak kategorinya!</span>
+                        <button onclick="resetClassifyGame()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-heading font-semibold text-xs px-4 py-2 rounded-xl transition-colors">
+                            🔄 Susun Ulang
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 5: LKPD DIGITAL -->
+        <section id="tab-lkpd" class="tab-content hidden space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Refleksi Pemahaman Konsep</span>
+                <h2 class="font-heading text-3xl font-bold text-slate-800">Lembar Kerja Peserta Didik (LKPD)</h2>
+                <p class="text-slate-600 text-sm">Tuliskan pemahaman konsep yang telah kamu pelajari tentang budaya kuliner Malang Raya!</p>
+            </div>
+
+            <div class="bg-white p-6 sm:p-10 rounded-3xl border-2 border-emerald-200 shadow-xl max-w-3xl mx-auto space-y-6">
+                <!-- Identity -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-slate-200">
+                    <div>
+                        <label class="block font-heading font-bold text-sm text-slate-700 mb-1">Nama Siswa / Kelompok:</label>
+                        <input type="text" id="lkpd-nama" placeholder="Tuliskan namamu di sini..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-heading font-bold text-sm text-slate-700 mb-1">Kelas & Absen:</label>
+                        <input type="text" id="lkpd-kelas" placeholder="Contoh: 4A / Absen 12" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm">
+                    </div>
+                </div>
+
+                <!-- Analysis Form -->
+                <div class="space-y-4">
+                    <h3 class="font-heading font-bold text-lg text-emerald-800 flex items-center gap-2">
+                        🕵️ Laporan Konsep Kuliner Malang
+                    </h3>
+
+                    <div>
+                        <label class="block font-semibold text-sm text-slate-700 mb-1">1. Pilih Makanan khas Malang Raya yang paling kamu pahami:</label>
+                        <select id="lkpd-kuliner" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm bg-white">
+                            <option value="">-- Pilih Makanan --</option>
+                            <option value="Bakso Malang">Bakso Malang</option>
+                            <option value="Rawon Malang">Rawon Malang</option>
+                            <option value="Orem-Orem">Orem-Orem</option>
+                            <option value="Mendol Malang">Mendol Malang</option>
+                            <option value="Keripik Tempe Sanan">Keripik Tempe Sanan</option>
+                            <option value="Wedang Angsle & Ronde">Wedang Angsle & Ronde</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-sm text-slate-700 mb-1">2. Bahan kunci & rempah apa yang memberi rasa khas pada hidangan tersebut?</label>
+                        <textarea id="lkpd-bahan" rows="2" placeholder="Jelaskan bahan kunci (misal: Kluwek pada Rawon, Kencur pada Mendol)..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-sm text-slate-700 mb-1">3. Bagaimanakah ciri cita rasa dan teksturnya?</label>
+                        <textarea id="lkpd-rasa" rows="2" placeholder="Contoh: Gurih berkuah hangat, garing renyah, atau manis gurih..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-sm text-slate-700 mb-1">4. Apa hubungan antara hidangan tersebut dengan kondisi geografis / budaya Malang Raya?</label>
+                        <textarea id="lkpd-alasan" rows="2" placeholder="Contoh: Udara Malang yang sejuk membuat hidangan kuah hangat sangat disukai..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"></textarea>
+                    </div>
+                </div>
+
+                <!-- Custom Feedback Message Display -->
+                <div id="lkpd-status-msg" class="hidden p-3 rounded-xl text-xs font-semibold text-center"></div>
+
+                <!-- Action Buttons -->
+                <div class="pt-4 flex flex-wrap gap-3 justify-end">
+                    <button onclick="copyLKPDText()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-heading font-bold px-5 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2">
+                        <i class="fa-regular fa-copy"></i> Salin Teks Jawaban
+                    </button>
+                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold px-5 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-heading text-sm text-slate-200">
+                🍵 Media Pembelajaran Interaktif Kuliner Malang Raya • IPAS Kelas IV SD
+            </p>
+            <p>© 2026 Modul Pembelajaran Kebudayaan Lokal Malang Raya</p>
+        </div>
+    </footer>
+
+    <script>
+        const KULINER_DATA = [
+            {
+                id: 'bakso',
+                nama: 'Bakso Malang',
+                wilayah: 'Kota Malang',
+                icon: '🥣',
+                bgClass: 'from-red-400 to-rose-500',
+                bahan: 'Daging Sapi, Tahu, Pangsit Basah & Goreng',
+                rasa: 'Gurih & Hangat Berkuah Kaldu',
+                fakta: 'Isiannya bisa dipilih sesuai selera pembeli, cocok untuk cuaca dingin Malang!',
+                penjelasan: 'Bakso Malang adalah hidangan kuah kaldu sapi hangat dengan isian beragam seperti bakso halus, bakso urat, tahu, siomay, dan pangsit goreng renyah.'
+            },
+            {
+                id: 'rawon',
+                nama: 'Rawon Malang',
+                wilayah: 'Kota & Kab. Malang',
+                icon: '🍲',
+                bgClass: 'from-amber-700 to-slate-800',
+                bahan: 'Daging Sapi & Bumbu Kluwek',
+                rasa: 'Gurih Kaya Rempah Nusantara',
+                fakta: 'Warna hitam alami berasal dari buah Kluwek yang diolah secara tradisional.',
+                penjelasan: 'Rawon adalah sup daging sapi dengan kuah hitam pekat. Warna hitam berasal dari rempah alami bernama kluwek. Disajikan dengan kecambah pendek dan kerupuk udang.'
+            },
+            {
+                id: 'orem',
+                nama: 'Orem-Orem',
+                wilayah: 'Kota Malang',
+                icon: '🍛',
+                bgClass: 'from-amber-400 to-orange-500',
+                bahan: 'Tempe Kedelai, Lontong, Santan Kuning',
+                rasa: 'Gurih Santan & Berbumbu',
+                fakta: 'Dahulu orem-orem sering disajikan saat acara hajatan masyarakat Malang.',
+                penjelasan: 'Orem-orem terdiri dari irisan tempe goreng dan tahu yang disiram kuah santan kuning gurih, disajikan bersama lontong dan taburan bawang goreng.'
+            },
+            {
+                id: 'mendol',
+                nama: 'Mendol Malang',
+                wilayah: 'Kota & Kab. Malang',
+                icon: '🧆',
+                bgClass: 'from-amber-800 to-yellow-900',
+                bahan: 'Tempe Kedelai, Kencur, Daun Jeruk',
+                rasa: 'Gurih Berempah pedas tipis',
+                fakta: 'Bentuk kearifan lokal Malang memanfaatkan tempe semangit agar tidak terbuang sia-sia.',
+                penjelasan: 'Mendol adalah olahan tempe kedelai yang ditumbuk bersama kencur, daun jeruk, dan bawang, kemudian dibentuk lonjong lalu menggorengnya hingga garing.'
+            },
+            {
+                id: 'sanan',
+                nama: 'Keripik Tempe Sanan',
+                wilayah: 'Kampung Sanan, Kota Malang',
+                icon: '🍘',
+                bgClass: 'from-yellow-400 to-amber-600',
+                bahan: 'Tempe Iris Tipis & Tepung Berbumbu',
+                rasa: 'Renyah & Gurih',
+                fakta: 'Kampung Sanan adalah pusat pembuatan olahan tempe legendaris sejak dahulu.',
+                penjelasan: 'Keripik Tempe Sanan adalah oleh-oleh khas Malang dari tempe yang diiris sangat tipis, dibalut tepung berbumbu gurih, lalu digoreng garing.'
+            },
+            {
+                id: 'angsle',
+                nama: 'Wedang Angsle',
+                wilayah: 'Kota Malang',
+                icon: '🍵',
+                bgClass: 'from-purple-400 to-pink-500',
+                bahan: 'Ketan, Petulo, Mutiara, Kuah Santan Manis',
+                rasa: 'Manis, Gurih, & Hangat',
+                fakta: 'Sangat diminati di malam hari saat udara Malang terasa dingin.',
+                penjelasan: 'Wedang Angsle adalah minuman hangat berkuah santan manis berisi ketan putih, kue petulo, mutiara merah, dan roti tawar.'
+            }
+        ];
+
+        // RECIPE CONCEPT DATA FOR ACTIVITY 1
+        const RECIPE_DATA = [
+            {
+                id: 'rawon',
+                nama: 'Rawon Malang',
+                icon: '🍲',
+                correctIngredients: ['kluwek', 'daging', 'kecambah'],
+                conceptMsg: '💡 **Konsep Utama Rawon:** Warna hitam pekat kuah Rawon berasal dari rempah alami bernama **Kluwek** (biji picung). Daging sapi empuk & kecambah pendek melengkapi kehangatan sajian khas bernutrisi ini!'
+            },
+            {
+                id: 'mendol',
+                nama: 'Mendol Malang',
+                icon: '🧆',
+                correctIngredients: ['tempe', 'kencur', 'daunjeruk'],
+                conceptMsg: '💡 **Konsep Utama Mendol:** Mendol dibuat dari tempe tumbuk yang dibumbui **Kencur** dan **Daun Jeruk Purut**. Ini adalah kearifan lokal Malang mengolah tempe agar tahan lama dan kaya rempah!'
+            },
+            {
+                id: 'angsle',
+                nama: 'Wedang Angsle',
+                icon: '🍵',
+                correctIngredients: ['petulo', 'santan', 'ketan'],
+                conceptMsg: '💡 **Konsep Utama Angsle:** Wedang Angsle menggabungkan **Ketan**, **Kue Petulo**, dan **Santan Manis**. Minuman ini disajikan hangat untuk menyesuaikan dengan iklim Malang yang sejuk!'
+            }
+        ];
+
+        const ALL_INGREDIENTS = [
+            { id: 'kluwek', name: '⬛ Bumbu Kluwek', category: 'rempah' },
+            { id: 'daging', name: '🥩 Daging Sapi', category: 'protein' },
+            { id: 'kecambah', name: '🌾 Kecambah Pendek', category: 'sayur' },
+            { id: 'tempe', name: '🧱 Tempe Kedelai', category: 'protein' },
+            { id: 'kencur', name: '🧄 Rempah Kencur', category: 'rempah' },
+            { id: 'daunjeruk', name: '🍃 Daun Jeruk', category: 'rempah' },
+            { id: 'petulo', name: '🍥 Kue Petulo', category: 'pelengkap' },
+            { id: 'santan', name: '🥛 Santan Gurih', category: 'kuah' },
+            { id: 'ketan', name: '🍚 Ketan Putih', category: 'karbo' }
+        ];
+
+        // CLASSIFY CONCEPT DATA FOR ACTIVITY 2
+        const CLASSIFY_ITEMS = [
+            { id: 'bakso', name: '🥣 Bakso Malang', target: 'kuah' },
+            { id: 'rawon', name: '🍲 Rawon Malang', target: 'kuah' },
+            { id: 'orem', name: '🍛 Orem-Orem', target: 'kuah' },
+            { id: 'mendol', name: '🧆 Mendol Malang', target: 'tempe' },
+            { id: 'sanan', name: '🍘 Keripik Tempe Sanan', target: 'tempe' },
+            { id: 'angsle', name: '🍵 Wedang Angsle', target: 'minuman' }
+        ];
+
+        let userStars = 0;
+        let isMuted = false;
+        let currentSelectedMapId = null;
+        let currentRecipeId = 'rawon';
+        let selectedIngredients = [];
+        let selectedClassifyFood = null;
+        let classifyPlacements = {
+            kuah: [],
+            tempe: [],
+            minuman: []
+        };
+
+        function switchTab(tabId) {
+            const tabs = ['home', 'peta', 'kartu', 'game', 'lkpd'];
+            tabs.forEach(id => {
+                const content = document.getElementById(`tab-${id}`);
+                const btn = document.getElementById(`tab-btn-${id}`);
+                if (content) {
+                    if (id === tabId) {
+                        content.classList.remove('hidden');
+                        content.classList.add('block');
+                    } else {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    }
+                }
+                if (btn) {
+                    if (id === tabId) {
+                        btn.className = 'nav-tab active-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all bg-white text-amber-800 shadow';
+                    } else {
+                        btn.className = 'nav-tab px-4 py-2 rounded-xl font-heading font-semibold text-sm flex items-center gap-2 transition-all hover:bg-amber-600 text-white';
+                    }
+                }
+            });
+
+            if (tabId === 'kartu') {
+                renderFlashcards();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const icon = document.getElementById('audio-icon');
+            if (icon) {
+                icon.className = isMuted ? 'fa-solid fa-volume-xmark text-red-500' : 'fa-solid fa-volume-high text-slate-700';
+            }
+            if (isMuted && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakCurrentInfo() {
+            if (!('speechSynthesis' in window) || isMuted) return;
+            
+            window.speechSynthesis.cancel();
+            if (!currentSelectedMapId) return;
+            const item = KULINER_DATA.find(d => d.id === currentSelectedMapId);
+            if (!item) return;
+
+            const text = `${item.nama}, hidangan khas dari ${item.wilayah}. ${item.penjelasan} Bahan utamanya adalah ${item.bahan}. ${item.fakta}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakItemDirect(id) {
+            currentSelectedMapId = id;
+            speakCurrentInfo();
+        }
+
+        function showMapDetail(id) {
+            currentSelectedMapId = id;
+            const item = KULINER_DATA.find(d => d.id === id);
+            if (!item) return;
+
+            const badge = document.getElementById('info-region-badge');
+            const title = document.getElementById('info-title');
+            const desc = document.getElementById('info-desc');
+            const details = document.getElementById('info-details');
+            const ingredient = document.getElementById('info-ingredient');
+            const taste = document.getElementById('info-taste');
+            const fact = document.getElementById('info-fact');
+            const speechBtn = document.getElementById('info-speech-btn');
+
+            if (badge) badge.innerText = `${item.icon} ${item.wilayah}`;
+            if (title) title.innerText = item.nama;
+            if (desc) desc.innerText = item.penjelasan;
+            if (ingredient) ingredient.innerText = item.bahan;
+            if (taste) taste.innerText = item.rasa;
+            if (fact) fact.innerText = item.fakta;
+
+            if (details) details.classList.remove('hidden');
+            if (speechBtn) speechBtn.classList.remove('hidden');
+
+            if (!isMuted) {
+                speakCurrentInfo();
+            }
+        }
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-container');
+            if (!container) return;
+            
+            container.innerHTML = KULINER_DATA.map(item => `
+                <div class="flip-card h-80 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner shadow-lg rounded-3xl">
+                        <div class="flip-card-front bg-gradient-to-br ${item.bgClass} text-white p-6 flex flex-col justify-between border-4 border-white">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold">${item.wilayah}</span>
+                                <span class="text-xs font-semibold">Klik untuk Balik 🔄</span>
+                            </div>
+                            <div class="my-auto text-center space-y-2">
+                                <div class="text-6xl drop-shadow-md">${item.icon}</div>
+                                <h3 class="font-heading font-bold text-2xl tracking-wide">${item.nama}</h3>
+                            </div>
+                            <div class="text-xs bg-black/20 backdrop-blur-sm py-2 px-3 rounded-xl text-amber-100">
+                                ✨ Tap kartu untuk membaca konsep & ciri khas!
+                            </div>
+                        </div>
+                        <div class="flip-card-back bg-white text-slate-800 p-6 flex flex-col justify-between border-4 border-amber-300">
+                            <div class="text-left space-y-3">
+                                <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                    <span class="text-2xl">${item.icon}</span>
+                                    <h4 class="font-heading font-bold text-lg text-slate-800">${item.nama}</h4>
+                                </div>
+                                <div class="space-y-2 text-xs">
+                                    <p><strong class="text-amber-700">🌱 Bahan Utama:</strong> ${item.bahan}</p>
+                                    <p><strong class="text-amber-700">👅 Rasa & Ciri:</strong> ${item.rasa}</p>
+                                    <p><strong class="text-amber-700">💡 Fakta Konsep:</strong> ${item.fakta}</p>
+                                </div>
+                            </div>
+                            <button onclick="event.stopPropagation(); speakItemDirect('${item.id}')" class="w-full mt-2 bg-amber-500 hover:bg-amber-600 text-white font-heading font-bold py-2 rounded-xl text-xs transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-volume-high"></i> Suara Penjelasan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function switchSubGame(subGame) {
+            const btnRacik = document.getElementById('btn-subgame-racik');
+            const btnKelompok = document.getElementById('btn-subgame-kelompok');
+            const subRacik = document.getElementById('subgame-racik');
+            const subKelompok = document.getElementById('subgame-kelompok');
+
+            if (subGame === 'racik') {
+                if (subRacik) subRacik.classList.remove('hidden');
+                if (subKelompok) subKelompok.classList.add('hidden');
+                if (btnRacik) btnRacik.className = 'px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-orange-500 text-white shadow-md flex items-center gap-2';
+                if (btnKelompok) btnKelompok.className = 'px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 flex items-center gap-2';
+            } else {
+                if (subRacik) subRacik.classList.add('hidden');
+                if (subKelompok) subKelompok.classList.remove('hidden');
+                if (btnRacik) btnRacik.className = 'px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 flex items-center gap-2';
+                if (btnKelompok) btnKelompok.className = 'px-5 py-2.5 rounded-2xl font-heading font-bold text-sm bg-blue-500 text-white shadow-md flex items-center gap-2';
+                renderClassifyGame();
+            }
+        }
+
+        function initRecipeGame() {
+            const dishButtons = document.getElementById('recipe-dish-buttons');
+            if (!dishButtons) return;
+
+            dishButtons.innerHTML = RECIPE_DATA.map(dish => `
+                <button onclick="selectRecipeDish('${dish.id}')" id="recipe-btn-${dish.id}" class="px-4 py-2 rounded-xl font-heading font-bold text-xs transition-all ${dish.id === currentRecipeId ? 'bg-amber-500 text-white shadow' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                    ${dish.icon} ${dish.nama}
+                </button>
+            `).join('');
+
+            selectRecipeDish(currentRecipeId);
+        }
+
+        function selectRecipeDish(dishId) {
+            currentRecipeId = dishId;
+            selectedIngredients = [];
+            const dish = RECIPE_DATA.find(d => d.id === dishId);
+            if (!dish) return;
+
+            RECIPE_DATA.forEach(d => {
+                const btn = document.getElementById(`recipe-btn-${d.id}`);
+                if (btn) {
+                    btn.className = d.id === dishId
+                        ? 'px-4 py-2 rounded-xl font-heading font-bold text-xs transition-all bg-amber-500 text-white shadow'
+                        : 'px-4 py-2 rounded-xl font-heading font-bold text-xs transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
+                }
+            });
+
+            document.getElementById('pot-icon').innerText = dish.icon;
+            document.getElementById('pot-dish-name').innerText = dish.nama;
+            document.getElementById('recipe-concept-feedback').classList.add('hidden');
+
+            renderIngredientShelf();
+        }
+
+        function renderIngredientShelf() {
+            const shelf = document.getElementById('ingredient-shelf');
+            if (!shelf) return;
+
+            shelf.innerHTML = ALL_INGREDIENTS.map(ing => {
+                const isSelected = selectedIngredients.includes(ing.id);
+                return `
+                    <button onclick="toggleIngredient('${ing.id}')" class="p-2.5 rounded-xl text-xs font-semibold text-left transition-all border-2 flex items-center justify-between ${isSelected ? 'bg-amber-500 border-amber-600 text-white shadow' : 'bg-white border-slate-200 text-slate-700 hover:border-amber-400'}">
+                        <span>${ing.name}</span>
+                        ${isSelected ? '<span>✓</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleIngredient(ingId) {
+            const index = selectedIngredients.indexOf(ingId);
+            if (index > -1) {
+                selectedIngredients.splice(index, 1);
+            } else {
+                if (selectedIngredients.length >= 3) {
+                    selectedIngredients.shift();
+                }
+                selectedIngredients.push(ingId);
+            }
+            renderIngredientShelf();
+            checkRecipeCompletion();
+        }
+
+        function checkRecipeCompletion() {
+            const recipe = RECIPE_DATA.find(r => r.id === currentRecipeId);
+            if (!recipe) return;
+
+            const feedbackBox = document.getElementById('recipe-concept-feedback');
+            const conceptText = document.getElementById('recipe-concept-text');
+
+            if (selectedIngredients.length === 3) {
+                const isCorrect = recipe.correctIngredients.every(ing => selectedIngredients.includes(ing));
+                if (isCorrect) {
+                    conceptText.innerHTML = recipe.conceptMsg;
+                    feedbackBox.classList.remove('hidden');
+                    addStar();
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                    }
+                } else {
+                    conceptText.innerHTML = '❌ **Racikan belum pas!** Coba perhatikan bumbu & bahan utama yang paling tepat untuk ' + recipe.nama + '.';
+                    feedbackBox.classList.remove('hidden');
+                }
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+        }
+
+        function renderClassifyGame() {
+            const pool = document.getElementById('classify-food-pool');
+            if (!pool) return;
+
+            const placedIds = [...classifyPlacements.kuah, ...classifyPlacements.tempe, ...classifyPlacements.minuman];
+            const availableItems = CLASSIFY_ITEMS.filter(item => !placedIds.includes(item.id));
+
+            pool.innerHTML = availableItems.map(item => `
+                <button onclick="selectClassifyFood('${item.id}')" class="px-4 py-2 rounded-2xl font-heading font-bold text-xs transition-all border-2 ${selectedClassifyFood === item.id ? 'bg-amber-500 text-white border-amber-600 shadow-md scale-105' : 'bg-white text-slate-800 border-slate-200 hover:border-amber-400'}">
+                    ${item.name}
+                </button>
+            `).join('');
+
+            ['kuah', 'tempe', 'minuman'].forEach(cat => {
+                const zone = document.getElementById(`drop-zone-${cat}`);
+                if (zone) {
+                    zone.innerHTML = classifyPlacements[cat].map(id => {
+                        const item = CLASSIFY_ITEMS.find(c => c.id === id);
+                        return `
+                            <div class="bg-white p-2 rounded-xl text-xs font-bold text-slate-700 shadow-sm border border-slate-200 flex justify-between items-center">
+                                <span>${item ? item.name : id}</span>
+                                <span class="text-emerald-500 font-extrabold">✓</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            });
+
+            const statusEl = document.getElementById('classify-status');
+            if (placedIds.length === CLASSIFY_ITEMS.length) {
+                const allCorrect = CLASSIFY_ITEMS.every(item => classifyPlacements[item.target].includes(item.id));
+                if (allCorrect) {
+                    statusEl.className = 'font-heading font-bold text-emerald-700 text-xs sm:text-sm';
+                    statusEl.innerText = '🎉 Hebat! Semua makanan berhasil dikelompokkan sesuai konsepnya!';
+                    addStar();
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 70, spread: 80, origin: { y: 0.7 } });
+                    }
+                } else {
+                    statusEl.className = 'font-heading font-bold text-amber-700 text-xs sm:text-sm';
+                    statusEl.innerText = '⚠️ Ada kelompok yang kurang tepat, klik Susun Ulang untuk mencoba kembali!';
+                }
+            } else {
+                statusEl.className = 'font-heading font-bold text-slate-700 text-xs sm:text-sm';
+                statusEl.innerText = selectedClassifyFood 
+                    ? '📌 Pilih kotak kategori di atas untuk memasukkan makanan ini!'
+                    : 'Klik makanan di atas, lalu klik kotak kategorinya!';
+            }
+        }
+
+        function selectClassifyFood(id) {
+            selectedClassifyFood = id;
+            renderClassifyGame();
+        }
+
+        function dropToCategory(catId) {
+            if (!selectedClassifyFood) return;
+            
+            const placedIds = [...classifyPlacements.kuah, ...classifyPlacements.tempe, ...classifyPlacements.minuman];
+            if (!placedIds.includes(selectedClassifyFood)) {
+                classifyPlacements[catId].push(selectedClassifyFood);
+                selectedClassifyFood = null;
+                renderClassifyGame();
+            }
+        }
+
+        function resetClassifyGame() {
+            selectedClassifyFood = null;
+            classifyPlacements = { kuah: [], tempe: [], minuman: [] };
+            renderClassifyGame();
+        }
+
+        function copyLKPDText() {
+            const nama = document.getElementById('lkpd-nama')?.value || '-';
+            const kelas = document.getElementById('lkpd-kelas')?.value || '-';
+            const kuliner = document.getElementById('lkpd-kuliner')?.value || '-';
+            const bahan = document.getElementById('lkpd-bahan')?.value || '-';
+            const rasa = document.getElementById('lkpd-rasa')?.value || '-';
+            const alasan = document.getElementById('lkpd-alasan')?.value || '-';
+
+            const textToCopy = `=== LAPORAN LKPD JELAJAH KULINER MALANG RAYA ===\nNama/Kelompok: ${nama}\nKelas: ${kelas}\n\n1. Makanan Pilihan: ${kuliner}\n2. Bahan Kunci & Rempah: ${bahan}\n3. Ciri Rasa & Tekstur: ${rasa}\n4. Hubungan dengan Budaya/Geografis Malang: ${alasan}`;
+
+            const statusMsg = document.getElementById('lkpd-status-msg');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(showSuccessMsg).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+
+            function fallbackCopy() {
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccessMsg();
+                } catch (e) {
+                    if (statusMsg) {
+                        statusMsg.className = 'block p-3 rounded-xl text-xs font-semibold text-center bg-red-100 text-red-800';
+                        statusMsg.innerText = 'Gagal menyalin. Silakan cetak halaman secara langsung.';
+                    }
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function showSuccessMsg() {
+                if (statusMsg) {
+                    statusMsg.className = 'block p-3 rounded-xl text-xs font-semibold text-center bg-emerald-100 text-emerald-800';
+                    statusMsg.innerText = '✅ Jawaban LKPD berhasil disalin ke clipboard!';
+                    setTimeout(() => statusMsg.classList.add('hidden'), 4000);
+                }
+            }
+        }
+
+        function addStar() {
+            userStars += 1;
+            const el = document.getElementById('star-count');
+            if (el) el.innerText = userStars;
+        }
+
+        window.onload = function() {
+            initRecipeGame();
+            renderClassifyGame();
+            switchTab('home');
+        };
+    </script>
+</body>
+</html>
